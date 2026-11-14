@@ -1,4 +1,6 @@
 import './style.css'
+import type { User } from '@supabase/supabase-js'
+import { isSupabaseConfigured, supabase } from './supabase'
 
 type GalleryItem = {
   image: string
@@ -73,11 +75,26 @@ const state = {
   drawerOpen: false,
   lightboxOpen: false,
   toast: '',
-  signedIn: sessionStorage.getItem('somity93-demo-session') === 'active',
+  signedIn: false,
+  authReady: !isSupabaseConfigured,
+  authUser: null as User | null,
 }
 
 let autoPlayTimer: number | undefined
 const app = document.querySelector<HTMLDivElement>('#app')!
+
+const identityName = (): string => {
+  const metadataName = state.authUser?.user_metadata?.display_name
+  return typeof metadataName === 'string' && metadataName.trim() ? metadataName : state.authUser?.email ?? 'সদস্য'
+}
+
+const authErrorMessage = (message: string): string => {
+  const normalized = message.toLowerCase()
+  if (normalized.includes('invalid login credentials')) return 'ইমেইল বা পাসওয়ার্ড সঠিক নয়।'
+  if (normalized.includes('email not confirmed')) return 'এই ইমেইল এখনো নিশ্চিত করা হয়নি।'
+  if (normalized.includes('rate limit')) return 'অনেকবার চেষ্টা হয়েছে। কিছুক্ষণ পরে আবার চেষ্টা করুন।'
+  return 'প্রবেশ করা যাচ্ছে না। সংযোগ ও তথ্য যাচাই করে আবার চেষ্টা করুন।'
+}
 
 const icon = (name: string, className = ''): string => {
   const common = `class="icon ${className}" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"`
@@ -236,10 +253,10 @@ const renderAuthModal = (): string => `
   <div class="modal-backdrop" data-action="close-modal">
     <section class="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-title" data-stop-propagation>
       <button class="modal-close" data-action="close-modal" aria-label="বন্ধ করুন">${icon('close')}</button>
-      <div class="auth-intro"><span class="auth-seal">৯৩</span><div class="section-kicker">সদস্য এলাকা <span></span></div><h2 id="auth-title">${state.authMode === 'login' ? 'আবার দেখা হলো।' : 'আপনার জায়গা তৈরি করুন।'}</h2><p>${state.authMode === 'login' ? 'আপনার সদস্য আইডি দিয়ে নিরাপদে হিসাব ঘরে প্রবেশ করুন।' : 'অনুমোদিত সদস্য হলে কয়েকটি তথ্য দিয়ে শুরু করুন।'}</p><p class="demo-helper">ডেমোতে যেকোনো সদস্য আইডি/ইমেইল এবং কমপক্ষে ৬ অক্ষরের পাসওয়ার্ড ব্যবহার করুন।</p></div>
+      <div class="auth-intro"><span class="auth-seal">৯৩</span><div class="section-kicker">সদস্য এলাকা <span></span></div><h2 id="auth-title">${state.authMode === 'login' ? 'আবার দেখা হলো।' : 'আপনার জায়গা তৈরি করুন।'}</h2><p>${state.authMode === 'login' ? 'Supabase Auth ইমেইল ও পাসওয়ার্ড দিয়ে নিরাপদে হিসাব ঘরে প্রবেশ করুন।' : 'অনুমোদিত সদস্য হলে কয়েকটি তথ্য দিয়ে আবেদন পাঠান।'}</p><p class="demo-helper">নতুন সদস্য আবেদন এখনো Admin approval ও RLS workflow-এর অধীনে রাখা হয়েছে।</p></div>
       <div class="auth-tabs"><button class="auth-tab ${state.authMode === 'login' ? 'is-active' : ''}" data-action="auth-tab" data-mode="login">প্রবেশ করুন</button><button class="auth-tab ${state.authMode === 'signup' ? 'is-active' : ''}" data-action="auth-tab" data-mode="signup">নতুন সদস্য</button></div>
       <form class="auth-form" data-action="auth-submit">
-        ${state.authMode === 'signup' ? '<label>সদস্য আইডি<input name="memberId" placeholder="যেমন: S-014" required /></label>' : '<label>সদস্য আইডি বা ইমেইল<input name="memberId" placeholder="যেমন: S-004" required /></label>'}
+        ${state.authMode === 'signup' ? '<label>ইমেইল<input name="memberId" type="email" placeholder="আপনার ইমেইল" required /></label>' : '<label>ইমেইল<input name="memberId" type="email" placeholder="যেমন: ekporibar93@gmail.com" required /></label>'}
         ${state.authMode === 'signup' ? '<label>দেশ<select name="country"><option>সংযুক্ত আরব আমিরাত (+৯৭১)</option><option>বাংলাদেশ (+৮৮০)</option><option>সৌদি আরব (+৯৬৬)</option></select></label><label>মোবাইল নম্বর<input name="phone" placeholder="৫০ ১২৩ ৪৫৬৭" required /></label>' : ''}
         <label>পাসওয়ার্ড<div class="password-input"><input name="password" type="password" minlength="6" placeholder="কমপক্ষে ৬ অক্ষর" required /><button type="button" data-action="toggle-password" aria-label="পাসওয়ার্ড দেখুন">${icon('eye')}</button></div></label>
         ${state.authMode === 'signup' ? '<label class="check-row"><input type="checkbox" required /><span>আমি জানি, অনুমোদন ছাড়া সদস্য প্রবেশ সম্ভব নয়।</span></label>' : '<div class="form-options"><label class="check-row"><input type="checkbox" /><span>আমাকে মনে রাখুন</span></label><a href="#reset">পাসওয়ার্ড ভুলে গেছেন?</a></div>'}
@@ -257,15 +274,15 @@ const renderLightbox = (): string => {
 }
 
 const renderProtectedGate = (): string => `
-  <div class="protected-page"><header class="protected-header section-wrap"><a class="brand" href="/" data-action="home">${brandMark()}</a><button class="button button-paper button-small" data-action="open-login">প্রবেশ করুন ${icon('arrow')}</button></header><main class="gate-main section-wrap"><div class="gate-card"><div class="gate-icon">${icon('lock')}</div><div class="section-kicker">সুরক্ষিত এলাকা <span></span></div><h1>হিসাব ঘর শুধু<br /><em>সদস্যদের জন্য।</em></h1><p>আপনার সদস্য আইডি ও পাসওয়ার্ড দিয়ে প্রবেশ করলে জমা, রিপোর্ট এবং ব্যক্তিগত শিট দেখতে পারবেন। ডেমোতে যেকোনো আইডি এবং ৬ অক্ষরের পাসওয়ার্ড ব্যবহার করা যায়।</p><button class="button button-saffron" data-action="open-login">সদস্য প্রবেশ ${icon('arrow')}</button><a class="text-link" href="/" data-action="home">হোমপেজে ফিরুন ${icon('arrow')}</a></div></main></div>
+  <div class="protected-page"><header class="protected-header section-wrap"><a class="brand" href="/" data-action="home">${brandMark()}</a><button class="button button-paper button-small" data-action="open-login">প্রবেশ করুন ${icon('arrow')}</button></header><main class="gate-main section-wrap"><div class="gate-card"><div class="gate-icon">${icon('lock')}</div><div class="section-kicker">সুরক্ষিত এলাকা <span></span></div><h1>হিসাব ঘর শুধু<br /><em>সদস্যদের জন্য।</em></h1><p>আপনার অনুমোদিত Supabase Auth ইমেইল ও পাসওয়ার্ড দিয়ে প্রবেশ করলে হিসাব ঘরের dashboard দেখতে পারবেন।</p><button class="button button-saffron" data-action="open-login">সদস্য প্রবেশ ${icon('arrow')}</button><a class="text-link" href="/" data-action="home">হোমপেজে ফিরুন ${icon('arrow')}</a></div></main></div>
 `
 
 const dashboardSidebar = (): string => `
   <aside class="dashboard-sidebar ${state.drawerOpen ? 'is-open' : ''}">
     <div class="dashboard-side-top"><a class="brand" href="/" data-action="home">${brandMark()}</a><button class="drawer-close" data-action="toggle-drawer" aria-label="মেনু বন্ধ করুন">${icon('close')}</button></div>
-    <div class="user-chip"><div class="user-chip-avatar">আউ</div><div><strong>আহমেদ উল্লাহ</strong><span>Admin · S-001</span></div><span class="status-dot"></span></div>
+    <div class="user-chip"><div class="user-chip-avatar">আউ</div><div><strong>${identityName()}</strong><span>Supabase Auth · Admin profile</span></div><span class="status-dot"></span></div>
     <nav class="dashboard-nav"><div class="nav-label">হিসাব</div><a class="is-active" href="#overview">${icon('home')}ওভারভিউ</a><a href="#deposits">${icon('wallet')}জমা খাতা <span>১২</span></a><a href="#expenses">${icon('file')}খরচের খাতা</a><a href="#members-sheet">${icon('users')}সদস্য শিট</a><div class="nav-label nav-label-spaced">রিপোর্ট</div><a href="#reports">${icon('chart')}মাসিক রিপোর্ট</a><a href="#reports">${icon('calendar')}বার্ষিক রিপোর্ট</a><a href="#reports">${icon('download')}আয়–ব্যয় রিপোর্ট</a><div class="nav-label nav-label-spaced">ব্যবস্থাপনা</div><a class="admin-nav" href="#admin" data-action="admin-info">${icon('settings')}অ্যাডমিন প্যানেল <span class="nav-badge">Admin</span></a></nav>
-    <div class="sidebar-bottom"><div class="privacy-note">${icon('lock')} <span>ডেমো মোডে দেখা হচ্ছে<br /><small>কোনো বাস্তব data mutation নেই</small></span></div><button class="sign-out" data-action="sign-out">${icon('logout')}সাইন আউট</button></div>
+    <div class="sidebar-bottom"><div class="privacy-note">${icon('lock')} <span>Auth connected · demo data<br /><small>কোনো বাস্তব data mutation নেই</small></span></div><button class="sign-out" data-action="sign-out">${icon('logout')}সাইন আউট</button></div>
   </aside>
 `
 
@@ -273,7 +290,7 @@ const renderDashboard = (): string => `
   <div class="dashboard-page">
     ${dashboardSidebar()}
     <div class="dashboard-main">
-      <header class="dashboard-header"><div class="dashboard-header-left"><button class="drawer-trigger" data-action="toggle-drawer" aria-label="সাইডবার">${icon('menu')}</button><div><span class="breadcrumb">হিসাব ঘর <b>/</b></span><h1>শুভেচ্ছা, আহমেদ</h1></div></div><div class="dashboard-header-actions"><span class="demo-label">DEMO DATA</span><button class="icon-button" data-action="toast" data-message="নোটিফিকেশন ফিচার শিগগিরই আসছে" aria-label="নোটিফিকেশন">◌<span class="notification-dot"></span></button><button class="profile-pill"><span class="profile-mini">আউ</span><span>আহমেদ উল্লাহ</span>${icon('chevronRight')}</button></div></header>
+      <header class="dashboard-header"><div class="dashboard-header-left"><button class="drawer-trigger" data-action="toggle-drawer" aria-label="সাইডবার">${icon('menu')}</button><div><span class="breadcrumb">হিসাব ঘর <b>/</b></span><h1>শুভেচ্ছা, ${identityName()}</h1></div></div><div class="dashboard-header-actions"><span class="demo-label">AUTH + DEMO DATA</span><button class="icon-button" data-action="toast" data-message="নোটিফিকেশন ফিচার শিগগিরই আসছে" aria-label="নোটিফিকেশন">◌<span class="notification-dot"></span></button><button class="profile-pill"><span class="profile-mini">আউ</span><span>${identityName()}</span>${icon('chevronRight')}</button></div></header>
       <main class="dashboard-content section-wrap">
         <div class="dashboard-intro"><div><div class="section-kicker">নভেম্বর ২০২৬ <span></span></div><h2>এই মাসের চিত্র</h2><p>আপনার সমিতির হিসাব এক নজরে। সব সংখ্যা ডেমো ডেটা দিয়ে দেখানো হচ্ছে।</p></div><div class="period-select">নভেম্বর ২০২৬ ${icon('chevronDown')}</div></div>
         <section class="stat-grid">
@@ -295,7 +312,9 @@ const renderDashboard = (): string => `
 
 const renderApp = (): void => {
   window.clearInterval(autoPlayTimer)
-  if (state.route === '/hisab' && state.signedIn) {
+  if (state.route === '/hisab' && !state.authReady) {
+    app.innerHTML = '<div class="protected-page"><main class="gate-main section-wrap"><div class="gate-card"><div class="gate-icon">◌</div><h1>সংযোগ যাচাই হচ্ছে…</h1><p>Supabase Auth session নিরাপদে যাচাই করা হচ্ছে।</p></div></main></div>'
+  } else if (state.route === '/hisab' && state.signedIn) {
     app.innerHTML = renderDashboard()
   } else if (state.route === '/hisab') {
     app.innerHTML = renderProtectedGate()
@@ -338,6 +357,33 @@ const openAuth = (mode: 'login' | 'signup' = 'login'): void => {
 const showToast = (message: string): void => {
   state.toast = message
   renderApp()
+}
+
+const hydrateAuth = async (): Promise<void> => {
+  if (!supabase) {
+    state.authReady = true
+    renderApp()
+    return
+  }
+  const { data } = await supabase.auth.getSession()
+  state.authUser = data.session?.user ?? null
+  state.signedIn = Boolean(data.session)
+  state.authReady = true
+  renderApp()
+  supabase.auth.onAuthStateChange((_event, session) => {
+    state.authUser = session?.user ?? null
+    state.signedIn = Boolean(session)
+    state.authReady = true
+    renderApp()
+  })
+}
+
+const signOut = async (): Promise<void> => {
+  if (supabase) await supabase.auth.signOut()
+  state.authUser = null
+  state.signedIn = false
+  showToast('সফলভাবে সাইন আউট হয়েছে')
+  window.setTimeout(() => navigate('/'), 800)
 }
 
 app.addEventListener('click', (event) => {
@@ -405,10 +451,7 @@ app.addEventListener('click', (event) => {
     return
   }
   if (action === 'sign-out') {
-    sessionStorage.removeItem('somity93-demo-session')
-    state.signedIn = false
-    showToast('সফলভাবে সাইন আউট হয়েছে')
-    window.setTimeout(() => navigate('/'), 800)
+    void signOut()
     return
   }
   if (action === 'print') {
@@ -424,7 +467,7 @@ app.addEventListener('click', (event) => {
   }
 })
 
-app.addEventListener('submit', (event) => {
+app.addEventListener('submit', async (event) => {
   const form = event.target as HTMLFormElement
   if (form.dataset.action !== 'auth-submit') return
   event.preventDefault()
@@ -437,12 +480,35 @@ app.addEventListener('submit', (event) => {
     return
   }
   if (!memberId?.value.trim()) {
-    if (error) error.textContent = 'সদস্য আইডি বা ইমেইল লিখুন।'
+    if (error) error.textContent = 'ইমেইল লিখুন।'
     memberId?.focus()
     return
   }
+  if (state.authMode === 'signup') {
+    if (error) error.textContent = 'নতুন সদস্য আবেদন এখন Admin approval workflow-এর মাধ্যমে চালু হবে।'
+    return
+  }
+  if (!supabase) {
+    if (error) error.textContent = 'Supabase configuration পাওয়া যাচ্ছে না। Netlify environment settings যাচাই করুন।'
+    return
+  }
+  const submitButton = form.querySelector<HTMLButtonElement>('button[type="submit"]')
+  if (submitButton) {
+    submitButton.disabled = true
+    submitButton.textContent = 'যাচাই হচ্ছে…'
+  }
+  const { data, error: authError } = await supabase.auth.signInWithPassword({
+    email: memberId.value.trim(),
+    password: password.value,
+  })
+  if (authError || !data.user) {
+    if (error) error.textContent = authErrorMessage(authError?.message ?? 'unknown auth error')
+    if (submitButton) submitButton.disabled = false
+    return
+  }
+  state.authUser = data.user
   state.signedIn = true
-  sessionStorage.setItem('somity93-demo-session', 'active')
+  state.authReady = true
   state.modalOpen = false
   navigate('/hisab')
 })
@@ -453,3 +519,4 @@ window.addEventListener('popstate', () => {
 })
 
 renderApp()
+void hydrateAuth()
