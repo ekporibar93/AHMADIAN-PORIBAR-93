@@ -1,0 +1,18 @@
+{
+  "name": "somity93",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@10.12.4",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "tsc && vite build",
+    "check": "tsc --noEmit",
+    "test": "node --test test/accounting.test.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.21",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5"
+  }
+}
