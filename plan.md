@@ -1,4 +1,4 @@
-# সমিতি-নাইন্টি ত্রি — Implementation & Design Plan
+# আহমদিয়ান পরিবার-93 — Implementation & Design Plan
 
 ## Scope and implementation approach
 

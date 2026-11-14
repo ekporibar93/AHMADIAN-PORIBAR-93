@@ -112,12 +112,12 @@ const icon = (name: string, className = ''): string => {
 
 const brandMark = (): string => `
   <span class="brand-mark" aria-hidden="true"><span>৯৩</span></span>
-  <span class="brand-copy"><strong>সমিতি-নাইন্টি ত্রি</strong><small>আঁরা বিয়াক্কুন এক পরিবার</small></span>
+  <span class="brand-copy"><strong>আহমদিয়ান পরিবার-93</strong><small>আঁরা বিয়াক্কুন এক পরিবার</small></span>
 `
 
 const renderHeader = (): string => `
   <header class="site-header">
-    <a class="brand" href="/" data-action="home" aria-label="সমিতি-নাইন্টি ত্রি হোমপেজ">${brandMark()}</a>
+    <a class="brand" href="/" data-action="home" aria-label="আহমদিয়ান পরিবার-93 হোমপেজ">${brandMark()}</a>
     <nav class="main-nav" aria-label="প্রধান নেভিগেশন">
       <a href="#about">আমাদের কথা</a>
       <a href="#members">সদস্যবৃন্দ</a>
@@ -185,7 +185,7 @@ const renderHome = (): string => {
               <h2>একটি হিসাবের খাতা,<br /><em>অনেকগুলো জীবনের গল্প।</em></h2>
             </div>
             <div class="about-body">
-              <p>সমিতি-নাইন্টি ত্রি গড়ে উঠেছে সেই বিশ্বাস থেকে—একসাথে থাকলে ছোট অবদানও বড় পরিবর্তনের শুরু হতে পারে। আমাদের কাজের প্রতিটি ধাপে থাকে স্বচ্ছতা, সম্মান আর পরস্পরের প্রতি দায়বদ্ধতা।</p>
+              <p>আহমদিয়ান পরিবার-93 গড়ে উঠেছে সেই বিশ্বাস থেকে—একসাথে থাকলে ছোট অবদানও বড় পরিবর্তনের শুরু হতে পারে। আমাদের কাজের প্রতিটি ধাপে থাকে স্বচ্ছতা, সম্মান আর পরস্পরের প্রতি দায়বদ্ধতা।</p>
               <a class="text-link" href="#updates">আমাদের অঙ্গীকার দেখুন ${icon('arrow')}</a>
             </div>
           </div>
@@ -225,7 +225,7 @@ const renderHome = (): string => {
           <div class="cta-card"><div class="cta-ornament">৯৩</div><div><div class="section-kicker light">আপনার জন্য <span></span></div><h2>হিসাব ঘরে দেখা হবে?</h2><p>সদস্যদের জন্য নিরাপদ জায়গা—আপনার জমা, রিপোর্ট এবং শিট একসাথে।</p></div><button class="button button-paper" data-action="open-hisab">হিসাব ঘরে যান ${icon('arrow')}</button></div>
         </section>
       </main>
-      <footer class="site-footer section-wrap"><div class="footer-brand">${brandMark()}</div><div class="footer-contact"><a href="mailto:shomity93@gmail.com">shomity93@gmail.com</a><a href="tel:+971552650307">+971 55 265 0307</a></div><div class="footer-meta"><span>© ২০২৬ সমিতি-নাইন্টি ত্রি</span><span>স্বচ্ছতা · সম্পর্ক · অগ্রগতি</span></div></footer>
+      <footer class="site-footer section-wrap"><div class="footer-brand">${brandMark()}</div><div class="footer-contact"><a href="mailto:shomity93@gmail.com">shomity93@gmail.com</a><a href="tel:+971552650307">+971 55 265 0307</a></div><div class="footer-meta"><span>© ২০২৬ আহমদিয়ান পরিবার-93</span><span>স্বচ্ছতা · সম্পর্ক · অগ্রগতি</span></div></footer>
       ${state.modalOpen ? renderAuthModal() : ''}
       ${state.lightboxOpen ? renderLightbox() : ''}
     </div>
@@ -236,7 +236,7 @@ const renderAuthModal = (): string => `
   <div class="modal-backdrop" data-action="close-modal">
     <section class="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-title" data-stop-propagation>
       <button class="modal-close" data-action="close-modal" aria-label="বন্ধ করুন">${icon('close')}</button>
-      <div class="auth-intro"><span class="auth-seal">৯৩</span><div class="section-kicker">সদস্য এলাকা <span></span></div><h2 id="auth-title">${state.authMode === 'login' ? 'আবার দেখা হলো।' : 'আপনার জায়গা তৈরি করুন।'}</h2><p>${state.authMode === 'login' ? 'আপনার সদস্য আইডি দিয়ে নিরাপদে হিসাব ঘরে প্রবেশ করুন।' : 'অনুমোদিত সদস্য হলে কয়েকটি তথ্য দিয়ে শুরু করুন।'}</p></div>
+      <div class="auth-intro"><span class="auth-seal">৯৩</span><div class="section-kicker">সদস্য এলাকা <span></span></div><h2 id="auth-title">${state.authMode === 'login' ? 'আবার দেখা হলো।' : 'আপনার জায়গা তৈরি করুন।'}</h2><p>${state.authMode === 'login' ? 'আপনার সদস্য আইডি দিয়ে নিরাপদে হিসাব ঘরে প্রবেশ করুন।' : 'অনুমোদিত সদস্য হলে কয়েকটি তথ্য দিয়ে শুরু করুন।'}</p><p class="demo-helper">ডেমোতে যেকোনো সদস্য আইডি/ইমেইল এবং কমপক্ষে ৬ অক্ষরের পাসওয়ার্ড ব্যবহার করুন।</p></div>
       <div class="auth-tabs"><button class="auth-tab ${state.authMode === 'login' ? 'is-active' : ''}" data-action="auth-tab" data-mode="login">প্রবেশ করুন</button><button class="auth-tab ${state.authMode === 'signup' ? 'is-active' : ''}" data-action="auth-tab" data-mode="signup">নতুন সদস্য</button></div>
       <form class="auth-form" data-action="auth-submit">
         ${state.authMode === 'signup' ? '<label>সদস্য আইডি<input name="memberId" placeholder="যেমন: S-014" required /></label>' : '<label>সদস্য আইডি বা ইমেইল<input name="memberId" placeholder="যেমন: S-004" required /></label>'}
@@ -257,14 +257,14 @@ const renderLightbox = (): string => {
 }
 
 const renderProtectedGate = (): string => `
-  <div class="protected-page"><header class="protected-header section-wrap"><a class="brand" href="/" data-action="home">${brandMark()}</a><button class="button button-paper button-small" data-action="open-login">প্রবেশ করুন ${icon('arrow')}</button></header><main class="gate-main section-wrap"><div class="gate-card"><div class="gate-icon">${icon('lock')}</div><div class="section-kicker">সুরক্ষিত এলাকা <span></span></div><h1>হিসাব ঘর শুধু<br /><em>সদস্যদের জন্য।</em></h1><p>আপনার সদস্য আইডি ও পাসওয়ার্ড দিয়ে প্রবেশ করলে জমা, রিপোর্ট এবং ব্যক্তিগত শিট দেখতে পারবেন।</p><button class="button button-saffron" data-action="open-login">সদস্য প্রবেশ ${icon('arrow')}</button><a class="text-link" href="/" data-action="home">হোমপেজে ফিরুন ${icon('arrow')}</a></div></main></div>
+  <div class="protected-page"><header class="protected-header section-wrap"><a class="brand" href="/" data-action="home">${brandMark()}</a><button class="button button-paper button-small" data-action="open-login">প্রবেশ করুন ${icon('arrow')}</button></header><main class="gate-main section-wrap"><div class="gate-card"><div class="gate-icon">${icon('lock')}</div><div class="section-kicker">সুরক্ষিত এলাকা <span></span></div><h1>হিসাব ঘর শুধু<br /><em>সদস্যদের জন্য।</em></h1><p>আপনার সদস্য আইডি ও পাসওয়ার্ড দিয়ে প্রবেশ করলে জমা, রিপোর্ট এবং ব্যক্তিগত শিট দেখতে পারবেন। ডেমোতে যেকোনো আইডি এবং ৬ অক্ষরের পাসওয়ার্ড ব্যবহার করা যায়।</p><button class="button button-saffron" data-action="open-login">সদস্য প্রবেশ ${icon('arrow')}</button><a class="text-link" href="/" data-action="home">হোমপেজে ফিরুন ${icon('arrow')}</a></div></main></div>
 `
 
 const dashboardSidebar = (): string => `
   <aside class="dashboard-sidebar ${state.drawerOpen ? 'is-open' : ''}">
     <div class="dashboard-side-top"><a class="brand" href="/" data-action="home">${brandMark()}</a><button class="drawer-close" data-action="toggle-drawer" aria-label="মেনু বন্ধ করুন">${icon('close')}</button></div>
     <div class="user-chip"><div class="user-chip-avatar">আউ</div><div><strong>আহমেদ উল্লাহ</strong><span>Admin · S-001</span></div><span class="status-dot"></span></div>
-    <nav class="dashboard-nav"><div class="nav-label">হিসাব</div><a class="is-active" href="#overview">${icon('home')}ওভারভিউ</a><a href="#deposits">${icon('wallet')}জমা খাতা <span>১২</span></a><a href="#expenses">${icon('file')}খরচের খাতা</a><a href="#members-sheet">${icon('users')}সদস্য শিট</a><div class="nav-label nav-label-spaced">রিপোর্ট</div><a href="#reports">${icon('chart')}মাসিক রিপোর্ট</a><a href="#reports">${icon('calendar')}বার্ষিক রিপোর্ট</a><a href="#reports">${icon('download')}আয়–ব্যয় রিপোর্ট</a><div class="nav-label nav-label-spaced">ব্যবস্থাপনা</div><a class="admin-nav" href="#admin">${icon('settings')}অ্যাডমিন প্যানেল <span class="nav-badge">Admin</span></a></nav>
+    <nav class="dashboard-nav"><div class="nav-label">হিসাব</div><a class="is-active" href="#overview">${icon('home')}ওভারভিউ</a><a href="#deposits">${icon('wallet')}জমা খাতা <span>১২</span></a><a href="#expenses">${icon('file')}খরচের খাতা</a><a href="#members-sheet">${icon('users')}সদস্য শিট</a><div class="nav-label nav-label-spaced">রিপোর্ট</div><a href="#reports">${icon('chart')}মাসিক রিপোর্ট</a><a href="#reports">${icon('calendar')}বার্ষিক রিপোর্ট</a><a href="#reports">${icon('download')}আয়–ব্যয় রিপোর্ট</a><div class="nav-label nav-label-spaced">ব্যবস্থাপনা</div><a class="admin-nav" href="#admin" data-action="admin-info">${icon('settings')}অ্যাডমিন প্যানেল <span class="nav-badge">Admin</span></a></nav>
     <div class="sidebar-bottom"><div class="privacy-note">${icon('lock')} <span>ডেমো মোডে দেখা হচ্ছে<br /><small>কোনো বাস্তব data mutation নেই</small></span></div><button class="sign-out" data-action="sign-out">${icon('logout')}সাইন আউট</button></div>
   </aside>
 `
@@ -287,7 +287,7 @@ const renderDashboard = (): string => `
 
         <div class="dashboard-two-col"><section class="dashboard-block compact-block" id="expenses"><div class="block-header"><div><div class="section-kicker">বেরিয়ে গেছে <span></span></div><h3>খরচের খাতা</h3></div><a class="text-link" href="#expenses">সব দেখুন ${icon('arrow')}</a></div><div class="expense-list">${expenses.map(exp => `<div class="expense-row"><div class="expense-icon">${icon('file')}</div><div><strong>${exp.description}</strong><span>${exp.date} · ${exp.category}</span></div><b>${exp.amount}</b></div>`).join('')}</div></section><section class="dashboard-block compact-block" id="members-sheet"><div class="block-header"><div><div class="section-kicker">নিজের হিসাব <span></span></div><h3>সদস্য শিট</h3></div><a class="text-link" href="#members-sheet">শিট খুলুন ${icon('arrow')}</a></div><div class="sheet-preview"><div class="sheet-person"><div class="sheet-avatar">আউ</div><div><strong>আহমেদ উল্লাহ</strong><span>Member ID · S-001</span></div></div><div class="sheet-balance"><span>এই বছর মোট জমা</span><strong>৳ ৬০,০০০</strong><small>শেষ এন্ট্রি · ০৩ নভেম্বর</small></div><div class="sheet-progress"><span style="width: 68%"></span></div><div class="sheet-foot"><span>লক্ষ্যের ৬৮%</span><button class="text-link" data-action="toast" data-message="পূর্ণ সদস্য শিট demo mode-এ লোড হবে">বিস্তারিত ${icon('arrow')}</button></div></div></section></div>
 
-        <section class="report-panel" id="reports"><div><div class="section-kicker light">রিপোর্ট সেন্টার <span></span></div><h3>হিসাবকে গল্পের মতো বুঝুন</h3><p>নির্বাচিত সময়ের আয়–ব্যয় রিপোর্ট A4-এ প্রিন্ট বা PDF হিসেবে সংরক্ষণ করুন।</p></div><div class="report-actions"><button class="button button-paper button-small" data-action="print">${icon('file')} প্রিন্ট রিপোর্ট</button><button class="button button-ghost-light button-small" data-action="toast" data-message="PDF export browser print dialog দিয়ে পাওয়া যাবে">${icon('download')} PDF হিসেবে রাখুন</button></div><div class="report-period">১ নভেম্বর ২০২৬ — ৩০ নভেম্বর ২০২৬</div></section>
+        <section class="admin-panel dashboard-block" id="admin"><div class="block-header"><div><div class="section-kicker">Admin only <span></span></div><h3>অ্যাডমিন প্যানেল</h3></div><span class="admin-status">শুধু Admin role</span></div><p class="admin-description">Admin panel হলো সাইট ও হিসাব পরিচালনার জায়গা। Production সংযোগ হলে এখান থেকে সদস্য approval, gallery, presentation, site settings, জমা–খরচ এবং user role পরিচালনা করা যাবে।</p><div class="admin-actions"><button data-action="toast" data-message="Demo mode-এ site settings edit বন্ধ আছে">${icon('settings')} Site settings <span>ইডিট</span></button><button data-action="toast" data-message="Demo mode-এ gallery add/delete বন্ধ আছে">${icon('plus')} Gallery & posts <span>এড / ডিলিট</span></button><button data-action="toast" data-message="Demo mode-এ member approval বন্ধ আছে">${icon('users')} Members & roles <span>ম্যানেজ</span></button><button data-action="toast" data-message="Demo mode-এ ledger mutation বন্ধ আছে">${icon('wallet')} Ledger control <span>ইডিট / ডিলিট</span></button></div><div class="admin-note">এই prototype-এ কোনো save, edit বা delete বাস্তব data-তে যায় না। Supabase audit, RLS এবং approval-এর পরেই production mutation চালু করতে হবে।</div></section><section class="report-panel" id="reports"><div><div class="section-kicker light">রিপোর্ট সেন্টার <span></span></div><h3>হিসাবকে গল্পের মতো বুঝুন</h3><p>নির্বাচিত সময়ের আয়–ব্যয় রিপোর্ট A4-এ প্রিন্ট বা PDF হিসেবে সংরক্ষণ করুন।</p></div><div class="report-actions"><button class="button button-paper button-small" data-action="print">${icon('file')} প্রিন্ট রিপোর্ট</button><button class="button button-ghost-light button-small" data-action="toast" data-message="PDF export browser print dialog দিয়ে পাওয়া যাবে">${icon('download')} PDF হিসেবে রাখুন</button></div><div class="report-period">১ নভেম্বর ২০২৬ — ৩০ নভেম্বর ২০২৬</div></section>
       </main>
     </div>
   </div>
@@ -417,6 +417,10 @@ app.addEventListener('click', (event) => {
   }
   if (action === 'toast') {
     showToast(actionElement.dataset.message ?? 'এই ফিচারটি শিগগিরই আসছে')
+    return
+  }
+  if (action === 'admin-info') {
+    showToast('Admin panel-এ edit/add/delete production audit ও permission-এর পর চালু হবে')
   }
 })
 

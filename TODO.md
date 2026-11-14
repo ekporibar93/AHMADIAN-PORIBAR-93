@@ -1,7 +1,7 @@
-# সমিতি-নাইন্টি ত্রি — Delivery TODO
+# আহমদিয়ান পরিবার-93 — Delivery TODO
 
 ## Public Bengali homepage
-- [x] The public homepage shows “সমিতি-নাইন্টি ত্রি”, the taglines “আঁরা বিয়াক্কুন এক পরিবার” and “লক্ষ্য অর্জনে প্রতিজ্ঞাবদ্ধ”, a two-tone brand mark, contact affordances, a hero gallery slider with Bengali captions, previous/next controls, progress indicators, five-second autoplay, and a lightbox preview.
+- [x] The public homepage shows “আহমদিয়ান পরিবার-93”, the taglines “আঁরা বিয়াক্কুন এক পরিবার” and “লক্ষ্য অর্জনে প্রতিজ্ঞাবদ্ধ”, a two-tone brand mark, contact affordances, a hero gallery slider with Bengali captions, previous/next controls, progress indicators, five-second autoplay, and a lightbox preview.
 - [x] The public homepage keeps all financial amounts and accounting tables out of the public surface.
 - [x] The homepage includes presentation posts, an about/presentation section, sample approved-member cards with name/member ID/photo, mobile/tablet/desktop responsive behavior, and an overlap-free header/rail.
 
