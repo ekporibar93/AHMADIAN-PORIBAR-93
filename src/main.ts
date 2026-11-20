@@ -71,6 +71,10 @@ const state = {
   route: window.location.pathname === '/hisab' ? '/hisab' : '/',
   galleryIndex: 0,
   modalOpen: false,
+  passwordModal: false,
+  adminModal: false,
+  adminKind: 'settings' as 'settings' | 'members' | 'ledger' | 'gallery',
+  adminError: '',
   authMode: 'login' as 'login' | 'signup',
   drawerOpen: false,
   lightboxOpen: false,
@@ -268,6 +272,35 @@ const renderAuthModal = (): string => `
   </div>
 `
 
+const renderPasswordModal = (): string => `
+  <div class="modal-backdrop" data-action="close-password-modal">
+    <section class="auth-modal" role="dialog" aria-modal="true" aria-labelledby="password-title" data-stop-propagation>
+      <button class="modal-close" data-action="close-password-modal" aria-label="বন্ধ করুন">${icon('close')}</button>
+      <div class="auth-intro"><span class="auth-seal">৯৩</span><div class="section-kicker">নিরাপত্তা <span></span></div><h2 id="password-title">Password পরিবর্তন</h2><p>নতুন password সেট করলে পরের login থেকে সেটিই ব্যবহার করবেন।</p></div>
+      <form class="auth-form" data-action="password-submit">
+        <label>নতুন password<input name="newPassword" type="password" autocomplete="new-password" minlength="8" required /></label>
+        <label>আবার লিখুন<input name="confirmPassword" type="password" autocomplete="new-password" minlength="8" required /></label>
+        <div class="auth-error" data-password-error></div>
+        <button class="button button-dark button-full" type="submit">Password সংরক্ষণ ${icon('check')}</button>
+      </form>
+    </section>
+  </div>
+`
+
+const renderAdminModal = (): string => {
+  const kind = state.adminKind
+  const title = kind === 'settings' ? 'হোমপেজ সেটিংস' : kind === 'members' ? 'সদস্য ব্যবস্থাপনা' : kind === 'ledger' ? 'হিসাব ব্যবস্থাপনা' : 'গ্যালারি ব্যবস্থাপনা'
+  const fields = kind === 'settings'
+    ? '<label>নাম<input name="name" required value="আহমদিয়ান পরিবার-93" /></label><label>প্রধান tagline<input name="primaryTagline" required /></label><label>দ্বিতীয় tagline<input name="secondaryTagline" required /></label><label>Contact email<input name="contactEmail" type="email" required /></label>'
+    : kind === 'members'
+      ? '<label>Record ID <small>(Edit/Delete-এর সময়)</small><input name="recordId" inputmode="numeric" /></label><label>Member code<input name="memberCode" required placeholder="S-001" /></label><label>পূর্ণ নাম<input name="fullName" required /></label><label>Phone<input name="phone" /></label><label>Email<input name="email" type="email" /></label><label>Address<input name="address" /></label><label>Occupation<input name="occupation" /></label><label>Status<select name="status"><option value="active">Active</option><option value="inactive">Inactive</option><option value="pending">Pending</option></select></label>'
+      : kind === 'ledger'
+        ? '<label>Record ID <small>(Edit/Delete-এর সময়)</small><input name="recordId" inputmode="numeric" /></label><label>Reference no.<input name="referenceNo" required /></label><label>Type<select name="type"><option value="income">Income</option><option value="expense">Expense</option></select></label><label>তারিখ<input name="occurredAt" type="date" required /></label><label>Category<input name="category" required /></label><label>Member ID <small>(ঐচ্ছিক)</small><input name="memberId" inputmode="numeric" /></label><label>Description<input name="description" /></label><label>Amount<input name="amount" type="number" min="0" step="0.01" required /></label><label>Payment method<input name="paymentMethod" /></label>'
+        : '<label>Record ID <small>(Edit/Delete-এর সময়)</small><input name="recordId" inputmode="numeric" /></label><label>Title<input name="title" required /></label><label>Description<input name="description" /></label><label>Image URL<input name="imageUrl" type="url" required /></label><label>Image key<input name="imageKey" required /></label><label>MIME type<input name="mimeType" value="image/jpeg" required /></label>'
+  const tabs = [['settings', 'হোমপেজ'], ['members', 'সদস্য'], ['ledger', 'হিসাব'], ['gallery', 'গ্যালারি']].map(([value, label]) => `<button type="button" class="auth-tab ${kind === value ? 'is-active' : ''}" data-action="admin-kind" data-kind="${value}">${label}</button>`).join('')
+  return `<div class="modal-backdrop" data-action="close-admin-modal"><section class="auth-modal admin-modal" role="dialog" aria-modal="true" data-stop-propagation><button class="modal-close" data-action="close-admin-modal" aria-label="বন্ধ করুন">${icon('close')}</button><div class="auth-intro"><span class="auth-seal">৯৩</span><div class="section-kicker">Admin <span></span></div><h2>${title}</h2><p>Add করতে ID খালি রাখুন; Edit/Delete করতে Record ID পূরণ করুন।</p></div><div class="auth-tabs">${tabs}</div><form class="auth-form" data-action="admin-submit">${fields}<div class="auth-error" data-admin-error>${state.adminError}</div><div class="admin-form-actions"><button class="button button-dark" type="submit" data-operation="save">সংরক্ষণ ${icon('check')}</button><button class="button button-outline" type="button" data-action="admin-delete">Delete</button></div></form></section></div>`
+}
+
 const renderLightbox = (): string => {
   const slide = gallery[state.galleryIndex]
   return `<div class="lightbox-backdrop" data-action="close-lightbox"><div class="lightbox-inner" data-stop-propagation><button class="modal-close" data-action="close-lightbox" aria-label="বন্ধ করুন">${icon('close')}</button><img src="${slide.image}" alt="${slide.title}" /><div class="lightbox-caption"><span>${slide.eyebrow}</span><strong>${slide.title}</strong><small>${slide.caption}</small></div></div></div>`
@@ -290,7 +323,7 @@ const renderDashboard = (): string => `
   <div class="dashboard-page">
     ${dashboardSidebar()}
     <div class="dashboard-main">
-      <header class="dashboard-header"><div class="dashboard-header-left"><button class="drawer-trigger" data-action="toggle-drawer" aria-label="সাইডবার">${icon('menu')}</button><div><span class="breadcrumb">হিসাব ঘর <b>/</b></span><h1>শুভেচ্ছা, ${identityName()}</h1></div></div><div class="dashboard-header-actions"><span class="demo-label">AUTH + DEMO DATA</span><button class="icon-button" data-action="toast" data-message="নোটিফিকেশন ফিচার শিগগিরই আসছে" aria-label="নোটিফিকেশন">◌<span class="notification-dot"></span></button><button class="profile-pill"><span class="profile-mini">আউ</span><span>${identityName()}</span>${icon('chevronRight')}</button></div></header>
+      <header class="dashboard-header"><div class="dashboard-header-left"><button class="drawer-trigger" data-action="toggle-drawer" aria-label="সাইডবার">${icon('menu')}</button><div><span class="breadcrumb">হিসাব ঘর <b>/</b></span><h1>শুভেচ্ছা, ${identityName()}</h1></div></div><div class="dashboard-header-actions"><span class="demo-label">AUTH CONNECTED</span><button class="icon-button" data-action="toast" data-message="নতুন notification এখনো সংযুক্ত হয়নি" aria-label="নোটিফিকেশন">◌<span class="notification-dot"></span></button><button class="profile-pill" data-action="open-password-modal"><span class="profile-mini">আউ</span><span>${identityName()}</span>${icon('chevronRight')}</button></div></header>
       <main class="dashboard-content section-wrap">
         <div class="dashboard-intro"><div><div class="section-kicker">নভেম্বর ২০২৬ <span></span></div><h2>এই মাসের চিত্র</h2><p>আপনার সমিতির হিসাব এক নজরে। সব সংখ্যা ডেমো ডেটা দিয়ে দেখানো হচ্ছে।</p></div><div class="period-select">নভেম্বর ২০২৬ ${icon('chevronDown')}</div></div>
         <section class="stat-grid">
@@ -304,8 +337,10 @@ const renderDashboard = (): string => `
 
         <div class="dashboard-two-col"><section class="dashboard-block compact-block" id="expenses"><div class="block-header"><div><div class="section-kicker">বেরিয়ে গেছে <span></span></div><h3>খরচের খাতা</h3></div><a class="text-link" href="#expenses">সব দেখুন ${icon('arrow')}</a></div><div class="expense-list">${expenses.map(exp => `<div class="expense-row"><div class="expense-icon">${icon('file')}</div><div><strong>${exp.description}</strong><span>${exp.date} · ${exp.category}</span></div><b>${exp.amount}</b></div>`).join('')}</div></section><section class="dashboard-block compact-block" id="members-sheet"><div class="block-header"><div><div class="section-kicker">নিজের হিসাব <span></span></div><h3>সদস্য শিট</h3></div><a class="text-link" href="#members-sheet">শিট খুলুন ${icon('arrow')}</a></div><div class="sheet-preview"><div class="sheet-person"><div class="sheet-avatar">আউ</div><div><strong>আহমেদ উল্লাহ</strong><span>Member ID · S-001</span></div></div><div class="sheet-balance"><span>এই বছর মোট জমা</span><strong>৳ ৬০,০০০</strong><small>শেষ এন্ট্রি · ০৩ নভেম্বর</small></div><div class="sheet-progress"><span style="width: 68%"></span></div><div class="sheet-foot"><span>লক্ষ্যের ৬৮%</span><button class="text-link" data-action="toast" data-message="পূর্ণ সদস্য শিট demo mode-এ লোড হবে">বিস্তারিত ${icon('arrow')}</button></div></div></section></div>
 
-        <section class="admin-panel dashboard-block" id="admin"><div class="block-header"><div><div class="section-kicker">Admin only <span></span></div><h3>অ্যাডমিন প্যানেল</h3></div><span class="admin-status">শুধু Admin role</span></div><p class="admin-description">Admin panel হলো সাইট ও হিসাব পরিচালনার জায়গা। Production সংযোগ হলে এখান থেকে সদস্য approval, gallery, presentation, site settings, জমা–খরচ এবং user role পরিচালনা করা যাবে।</p><div class="admin-actions"><button data-action="toast" data-message="Demo mode-এ site settings edit বন্ধ আছে">${icon('settings')} Site settings <span>ইডিট</span></button><button data-action="toast" data-message="Demo mode-এ gallery add/delete বন্ধ আছে">${icon('plus')} Gallery & posts <span>এড / ডিলিট</span></button><button data-action="toast" data-message="Demo mode-এ member approval বন্ধ আছে">${icon('users')} Members & roles <span>ম্যানেজ</span></button><button data-action="toast" data-message="Demo mode-এ ledger mutation বন্ধ আছে">${icon('wallet')} Ledger control <span>ইডিট / ডিলিট</span></button></div><div class="admin-note">এই prototype-এ কোনো save, edit বা delete বাস্তব data-তে যায় না। Supabase audit, RLS এবং approval-এর পরেই production mutation চালু করতে হবে।</div></section><section class="report-panel" id="reports"><div><div class="section-kicker light">রিপোর্ট সেন্টার <span></span></div><h3>হিসাবকে গল্পের মতো বুঝুন</h3><p>নির্বাচিত সময়ের আয়–ব্যয় রিপোর্ট A4-এ প্রিন্ট বা PDF হিসেবে সংরক্ষণ করুন।</p></div><div class="report-actions"><button class="button button-paper button-small" data-action="print">${icon('file')} প্রিন্ট রিপোর্ট</button><button class="button button-ghost-light button-small" data-action="toast" data-message="PDF export browser print dialog দিয়ে পাওয়া যাবে">${icon('download')} PDF হিসেবে রাখুন</button></div><div class="report-period">১ নভেম্বর ২০২৬ — ৩০ নভেম্বর ২০২৬</div></section>
+        <section class="admin-panel dashboard-block" id="admin"><div class="block-header"><div><div class="section-kicker">Admin only <span></span></div><h3>অ্যাডমিন প্যানেল</h3></div><span class="admin-status">শুধু Admin role</span></div><p class="admin-description">এখানকার সংরক্ষণ, edit এবং delete Supabase RLS দ্বারা অনুমোদিত Admin account-এ সীমাবদ্ধ।</p><div class="admin-actions"><button data-action="open-admin-kind" data-kind="settings">${icon('settings')} Site settings <span>ইডিট</span></button><button data-action="open-admin-kind" data-kind="gallery">${icon('plus')} Gallery & posts <span>এড / ডিলিট</span></button><button data-action="open-admin-kind" data-kind="members">${icon('users')} Members & roles <span>ম্যানেজ</span></button><button data-action="open-admin-kind" data-kind="ledger">${icon('wallet')} Ledger control <span>ইডিট / ডিলিট</span></button></div><div class="admin-note">Record ID খালি রেখে নতুন record যোগ করুন; Record ID দিয়ে পুরোনো record edit বা delete করুন।</div></section><section class="report-panel" id="reports"><div><div class="section-kicker light">রিপোর্ট সেন্টার <span></span></div><h3>হিসাবকে গল্পের মতো বুঝুন</h3><p>নির্বাচিত জমা বা খরচের block-এর Print button ব্যবহার করুন।</p></div><div class="report-actions"><button class="button button-paper button-small" data-action="print-report" data-target="deposits">${icon('file')} জমা প্রিন্ট</button><button class="button button-ghost-light button-small" data-action="print-report" data-target="expenses">${icon('download')} খরচ প্রিন্ট</button></div><div class="report-period">১ নভেম্বর ২০২৬ — ৩০ নভেম্বর ২০২৬</div></section>
       </main>
+      ${state.passwordModal ? renderPasswordModal() : ''}
+      ${state.adminModal ? renderAdminModal() : ''}
     </div>
   </div>
 `
@@ -388,6 +423,37 @@ const signOut = async (): Promise<void> => {
   window.setTimeout(() => navigate('/'), 800)
 }
 
+const adminTable = (): string => state.adminKind === 'settings' ? 'cooperativeSettings' : state.adminKind === 'members' ? 'members' : state.adminKind === 'ledger' ? 'ledgerEntries' : 'galleryItems'
+
+const submitAdminForm = async (form: HTMLFormElement, operation: string): Promise<void> => {
+  if (!supabase) return
+  const values = Object.fromEntries(new FormData(form).entries()) as Record<string, string>
+  const table = adminTable()
+  const recordId = values.recordId?.trim()
+  const now = new Date().toISOString()
+  let payload: Record<string, unknown>
+  if (state.adminKind === 'settings') payload = { name: values.name, primaryTagline: values.primaryTagline, secondaryTagline: values.secondaryTagline, contactEmail: values.contactEmail, updatedBy: state.authUser?.id, updatedAt: now }
+  else if (state.adminKind === 'members') payload = { memberCode: values.memberCode, fullName: values.fullName, phone: values.phone || null, email: values.email || null, address: values.address || null, occupation: values.occupation || null, status: values.status, joinedAt: now, updatedAt: now, createdAt: now }
+  else if (state.adminKind === 'ledger') payload = { referenceNo: values.referenceNo, type: values.type, occurredAt: values.occurredAt, category: values.category, memberId: values.memberId ? Number(values.memberId) : null, description: values.description || null, amount: Number(values.amount), paymentMethod: values.paymentMethod || null, enteredBy: state.authUser?.id, createdAt: now, updatedAt: now }
+  else payload = { title: values.title, description: values.description || null, imageUrl: values.imageUrl, imageKey: values.imageKey, mimeType: values.mimeType, createdBy: state.authUser?.id, createdAt: now }
+  let result
+  if (operation === 'delete') {
+    if (!recordId) throw new Error('Delete করার জন্য Record ID দিন।')
+    result = await supabase.from(table).delete().eq('id', Number(recordId))
+  } else if (state.adminKind === 'settings') {
+    result = await supabase.from(table).update(payload).eq('id', 1)
+  } else if (recordId) {
+    delete payload.createdAt
+    result = await supabase.from(table).update(payload).eq('id', Number(recordId))
+  } else {
+    result = await supabase.from(table).insert(payload)
+  }
+  if (result.error) throw result.error
+  state.adminModal = false
+  state.adminError = ''
+  showToast(operation === 'delete' ? 'রেকর্ড মুছে ফেলা হয়েছে' : 'রেকর্ড সংরক্ষণ হয়েছে')
+}
+
 app.addEventListener('click', (event) => {
   const target = event.target as HTMLElement
   const actionElement = target.closest<HTMLElement>('[data-action]')
@@ -415,6 +481,40 @@ app.addEventListener('click', (event) => {
   if (action === 'close-modal') {
     state.modalOpen = false
     renderApp()
+    return
+  }
+  if (action === 'open-password-modal') {
+    state.passwordModal = true
+    renderApp()
+    return
+  }
+  if (action === 'close-password-modal') {
+    state.passwordModal = false
+    renderApp()
+    return
+  }
+  if (action === 'close-admin-modal') {
+    state.adminModal = false
+    state.adminError = ''
+    renderApp()
+    return
+  }
+  if (action === 'admin-kind') {
+    state.adminKind = (actionElement.dataset.kind as typeof state.adminKind) ?? 'settings'
+    state.adminError = ''
+    renderApp()
+    return
+  }
+  if (action === 'open-admin-kind') {
+    state.adminKind = (actionElement.dataset.kind as typeof state.adminKind) ?? 'settings'
+    state.adminError = ''
+    state.adminModal = true
+    renderApp()
+    return
+  }
+  if (action === 'admin-delete') {
+    const form = actionElement.closest<HTMLFormElement>('form')
+    if (form) void submitAdminForm(form, 'delete').catch((error: Error) => { state.adminError = error.message; renderApp() })
     return
   }
   if (action === 'auth-tab') {
@@ -460,19 +560,46 @@ app.addEventListener('click', (event) => {
     window.print()
     return
   }
+  if (action === 'print-report') {
+    const target = actionElement.dataset.target ?? 'deposits'
+    document.body.classList.add(`print-${target}`)
+    window.setTimeout(() => window.print(), 0)
+    window.addEventListener('afterprint', () => document.body.classList.remove(`print-${target}`), { once: true })
+    return
+  }
   if (action === 'toast') {
     showToast(actionElement.dataset.message ?? 'এই ফিচারটি শিগগিরই আসছে')
     return
   }
   if (action === 'admin-info') {
-    showToast('Admin panel-এ edit/add/delete production audit ও permission-এর পর চালু হবে')
+    state.adminKind = 'settings'
+    state.adminModal = true
+    renderApp()
   }
 })
 
 app.addEventListener('submit', async (event) => {
   const form = event.target as HTMLFormElement
-  if (form.dataset.action !== 'auth-submit') return
   event.preventDefault()
+  if (form.dataset.action === 'password-submit') {
+    const values = Object.fromEntries(new FormData(form).entries()) as Record<string, string>
+    const error = app.querySelector<HTMLElement>('[data-password-error]')
+    if (values.newPassword.length < 8 || values.newPassword !== values.confirmPassword) {
+      if (error) error.textContent = 'দুটি password একই এবং অন্তত ৮ অক্ষরের হতে হবে।'
+      return
+    }
+    if (!supabase) return
+    const result = await supabase.auth.updateUser({ password: values.newPassword })
+    if (result.error) { if (error) error.textContent = result.error.message; return }
+    state.passwordModal = false
+    showToast('Password সফলভাবে পরিবর্তন হয়েছে')
+    return
+  }
+  if (form.dataset.action === 'admin-submit') {
+    try { await submitAdminForm(form, 'save') } catch (error) { state.adminError = error instanceof Error ? error.message : 'সংরক্ষণ করা যায়নি'; renderApp() }
+    return
+  }
+  if (form.dataset.action !== 'auth-submit') return
   const password = form.elements.namedItem('password') as HTMLInputElement | null
   const memberId = form.elements.namedItem('memberId') as HTMLInputElement | null
   const error = app.querySelector<HTMLElement>('[data-auth-error]')
