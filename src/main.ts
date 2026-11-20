@@ -256,9 +256,9 @@ const renderAuthModal = (): string => `
       <div class="auth-intro"><span class="auth-seal">৯৩</span><div class="section-kicker">সদস্য এলাকা <span></span></div><h2 id="auth-title">${state.authMode === 'login' ? 'আবার দেখা হলো।' : 'আপনার জায়গা তৈরি করুন।'}</h2><p>${state.authMode === 'login' ? 'Supabase Auth ইমেইল ও পাসওয়ার্ড দিয়ে নিরাপদে হিসাব ঘরে প্রবেশ করুন।' : 'অনুমোদিত সদস্য হলে কয়েকটি তথ্য দিয়ে আবেদন পাঠান।'}</p><p class="demo-helper">নতুন সদস্য আবেদন এখনো Admin approval ও RLS workflow-এর অধীনে রাখা হয়েছে।</p></div>
       <div class="auth-tabs"><button class="auth-tab ${state.authMode === 'login' ? 'is-active' : ''}" data-action="auth-tab" data-mode="login">প্রবেশ করুন</button><button class="auth-tab ${state.authMode === 'signup' ? 'is-active' : ''}" data-action="auth-tab" data-mode="signup">নতুন সদস্য</button></div>
       <form class="auth-form" data-action="auth-submit">
-        ${state.authMode === 'signup' ? '<label>ইমেইল<input name="memberId" type="email" placeholder="আপনার ইমেইল" required /></label>' : '<label>ইমেইল<input name="memberId" type="email" placeholder="যেমন: ekporibar93@gmail.com" required /></label>'}
+        ${state.authMode === 'signup' ? '<label>ইমেইল<input name="memberId" type="email" inputmode="email" autocomplete="email" placeholder="আপনার ইমেইল" required /></label>' : '<label>ইমেইল<input name="memberId" type="email" inputmode="email" autocomplete="email" placeholder="যেমন: ekporibar93@gmail.com" required /></label>'}
         ${state.authMode === 'signup' ? '<label>দেশ<select name="country"><option>সংযুক্ত আরব আমিরাত (+৯৭১)</option><option>বাংলাদেশ (+৮৮০)</option><option>সৌদি আরব (+৯৬৬)</option></select></label><label>মোবাইল নম্বর<input name="phone" placeholder="৫০ ১২৩ ৪৫৬৭" required /></label>' : ''}
-        <label>পাসওয়ার্ড<div class="password-input"><input name="password" type="password" minlength="6" placeholder="কমপক্ষে ৬ অক্ষর" required /><button type="button" data-action="toggle-password" aria-label="পাসওয়ার্ড দেখুন">${icon('eye')}</button></div></label>
+        <label>পাসওয়ার্ড<div class="password-input"><input name="password" type="password" autocomplete="current-password" minlength="6" placeholder="কমপক্ষে ৬ অক্ষর" required /><button type="button" data-action="toggle-password" aria-label="পাসওয়ার্ড দেখুন">${icon('eye')}</button></div></label>
         ${state.authMode === 'signup' ? '<label class="check-row"><input type="checkbox" required /><span>আমি জানি, অনুমোদন ছাড়া সদস্য প্রবেশ সম্ভব নয়।</span></label>' : '<div class="form-options"><label class="check-row"><input type="checkbox" /><span>আমাকে মনে রাখুন</span></label><a href="#reset">পাসওয়ার্ড ভুলে গেছেন?</a></div>'}
         <div class="auth-error" data-auth-error></div>
         <button class="button button-dark button-full" type="submit">${state.authMode === 'login' ? 'হিসাব ঘরে প্রবেশ' : 'অনুমোদনের জন্য পাঠান'} ${icon('arrow')}</button>
@@ -369,12 +369,12 @@ const hydrateAuth = async (): Promise<void> => {
   state.authUser = data.session?.user ?? null
   state.signedIn = Boolean(data.session)
   state.authReady = true
-  renderApp()
+  if (!state.modalOpen) renderApp()
   supabase.auth.onAuthStateChange((_event, session) => {
     state.authUser = session?.user ?? null
     state.signedIn = Boolean(session)
     state.authReady = true
-    renderApp()
+    if (!state.modalOpen) renderApp()
   })
 }
 
