@@ -320,10 +320,12 @@ const renderApp = (): void => {
     app.innerHTML = renderProtectedGate()
   } else {
     app.innerHTML = renderHome()
-    autoPlayTimer = window.setInterval(() => {
-      state.galleryIndex = (state.galleryIndex + 1) % gallery.length
-      renderApp()
-    }, 5000)
+    if (!state.modalOpen && !state.lightboxOpen) {
+      autoPlayTimer = window.setInterval(() => {
+        state.galleryIndex = (state.galleryIndex + 1) % gallery.length
+        renderApp()
+      }, 5000)
+    }
   }
   if (state.toast) {
     const toast = document.createElement('div')
