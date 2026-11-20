@@ -1,6 +1,6 @@
 # প্রস্তাবিত Supabase production policy
 
-`20261114_additive_rbac_policies.sql` এখনো production-এ apply করা হয়নি। এটি review-এর জন্য প্রস্তুত করা additive draft।
+`20261114_additive_rbac_policies.sql` user-এর explicit approval-এর পর production Supabase project `সমিতি93`-এ additive migration হিসেবে apply করা হয়েছে। Existing production data অক্ষত রাখা হয়েছে।
 
 এটি যা করবে:
 
@@ -17,4 +17,5 @@
 - Existing broad SQL privileges revoke করা হয়নি; RLS policy gate হিসেবে যোগ হবে। Privilege tightening আলাদা review ছাড়া করা হবে না।
 - Existing `touch_updated_at` function পরিবর্তন করা হয়নি। নতুন helper functions fixed `search_path` ব্যবহার করে।
 - Private gallery bucket public করা হয়নি; public gallery delivery-এর জন্য signed URL/server-side path আলাদা করে implement করতে হবে।
-- এই draft apply করার আগে user-এর explicit confirmation দরকার। Apply হওয়ার পর Supabase policy verification, Auth-to-profile verification, role matrix test এবং Netlify production smoke test করতে হবে।
+- Apply verification: public settings read `200` (১ row), public gallery read `200` (০ row), confirmed Admin Auth login `200`, Auth-to-profile read `200` (১ row), Admin members read `200` (০ row), এবং Admin ledger read `200` (০ row)। কোনো access token বা password documentation-এ রাখা হয়নি।
+- Netlify production smoke test: deploy `6b005c3520e448975c071c1a` `ready`; live site `https://ahmadian93.netlify.app` এবং latest mobile login focus-stability bundle উপস্থিত।
